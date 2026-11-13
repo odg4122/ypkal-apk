@@ -15,7 +15,7 @@ public class MainActivity extends Activity {
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebViewClient(new WebViewClient());
 
-        // 수신용 대시보드 HTML 임베딩
+        // 항시 자동 수신 및 출고완료 즉시 반영형 대시보드 HTML
         String html = "<!DOCTYPE html><html lang='ko'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
                 "<title>양평칼국수 본점 발주 수신 장부</title>" +
                 "<style>" +
@@ -24,7 +24,6 @@ public class MainActivity extends Activity {
                 "h2 { text-align: center; color: #fff; margin-bottom: 5px; }" +
                 ".subtitle { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 20px; }" +
                 ".status-bar { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }" +
-                ".connect-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }" +
                 ".tabs { display: flex; background: #0f172a; padding: 4px; border-radius: 12px; margin-bottom: 20px; }" +
                 ".tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 8px; color: #94a3b8; }" +
                 ".tab.active { background: #1e293b; color: #60a5fa; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }" +
@@ -35,7 +34,7 @@ public class MainActivity extends Activity {
                 ".order-card { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 12px; margin-bottom: 12px; }" +
                 ".order-header { display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; font-weight: bold; }" +
                 ".order-body { font-size: 15px; font-weight: 500; margin-bottom: 10px; line-height: 1.5; color: #f8fafc; }" +
-                ".order-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #334155; paddingTop: 8px; }" +
+                ".order-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #334155; padding-top: 8px; }" +
                 ".price { color: #22c55e; font-weight: bold; font-size: 16px; }" +
                 ".ship-btn { background: #22c55e; color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }" +
                 ".grand-total-box { background: #0f172a; border: 2px solid #1e3a8a; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; }" +
@@ -46,8 +45,8 @@ public class MainActivity extends Activity {
                 ".month-select { padding: 10px; font-size: 15px; font-weight: bold; border: 2px solid #334155; border-radius: 10px; background: #0f172a; color: #60a5fa; width: 100%; margin-bottom: 15px; }" +
                 "</style></head><body>" +
                 "<div class='container'>" +
-                "<h2>🔔 양평칼국수 본점 수신 대시보드</h2><div class='subtitle'>실시간 발주 수신 및 지점별 월간 장부 관리</div>" +
-                "<div class='status-bar'><div><span id='connectionStatus' style='color: #60a5fa; font-weight: bold;'>🔴 대기 중 (시작 버튼을 누르세요)</span></div><button id='startBtn' class='connect-btn' onclick='startListening()'>수신 시작</button></div>" +
+                "<h2>🔔 양평칼국수 본점 발주 수신 대시보드</h2><div class='subtitle'>실시간 항시 수신 및 지점별 월간 장부 관리</div>" +
+                "<div class='status-bar'><div><span id='connectionStatus' style='color: #22c55e; font-weight: bold;'>🟢 항시 자동 수신 가동 중</span></div><span style='font-size:12px; color:#94a3b8;'>실시간 동기화 완료</span></div>" +
                 "<div class='tabs'><div class='tab active' onclick='switchTab(\"realtime\")'>📥 당일 실시간 수신</div><div class='tab' onclick='switchTab(\"monthly\")'>📅 지점별 월간 장부</div></div>" +
                 "<div id='tab-realtime' class='tab-content active'><div id='todayOrderList'><div class='empty-msg'>접수된 실시간 발주가 없습니다.</div></div></div>" +
                 "<div id='tab-monthly' class='tab-content'><select id='selectedMonth' class='month-select' onchange='renderMonthlyData()'></select>" +
@@ -66,9 +65,8 @@ public class MainActivity extends Activity {
                 "</div></div>" +
                 "<script>" +
                 "let db = JSON.parse(localStorage.getItem('yp_receiver_dashboard_db')) || { orders: [], shippedIds: [] };" +
-                "let isListening = false, audioCtx = null, currentSelectedBranch = '전체';" +
+                "let audioCtx = null, currentSelectedBranch = '전체';" +
                 "function playBeep() { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.5, audioCtx.currentTime); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.6); if (navigator.vibrate) navigator.vibrate([400, 200, 400]); } catch(e){} }" +
-                "function startListening() { if (isListening) return; isListening = true; playBeep(); document.getElementById('startBtn').style.background = '#059669'; document.getElementById('startBtn').innerText = '가동 중'; document.getElementById('connectionStatus').innerText = '🟢 실시간 수신 연결됨'; checkServer(); setInterval(checkServer, 5000); }" +
                 "function checkServer() { fetch('https://ypkal-1.onrender.com/api/check-order').then(r => r.json()).then(d => { if(d.order) { const id = d.order.id || new Date(d.order.orderDate).getTime(); if(!db.orders.some(o => o.id === id)) { db.orders.push({ id: id, branch: d.order.branch || '지점 미지정', orderDate: d.order.orderDate, details: d.order.details, total: Number(d.order.total)||0 }); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); playBeep(); renderRealtimeOrders(); renderMonthlyData(); } } }).catch(e=>{}); }" +
                 "function completeShipment(id) { if(confirm('출고 완료 처리하시겠습니까?')) { if(!db.shippedIds.includes(id)) db.shippedIds.push(id); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); renderRealtimeOrders(); renderMonthlyData(); } }" +
                 "function switchTab(name) { document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); if(name==='realtime'){document.querySelectorAll('.tab')[0].classList.add('active');document.getElementById('tab-realtime').classList.add('active');renderRealtimeOrders();}else{document.querySelectorAll('.tab')[1].classList.add('active');document.getElementById('tab-monthly').classList.add('active');renderMonthlyData();}}" +
@@ -76,8 +74,9 @@ public class MainActivity extends Activity {
                 "function renderRealtimeOrders() { const c = document.getElementById('todayOrderList'); const list = db.orders.filter(o => !db.shippedIds.includes(o.id)); if(list.length===0){c.innerHTML='<div class=\"empty-msg\">🎉 대기 중인 실시간 발주가 없습니다.</div>';return;} c.innerHTML=''; list.slice().reverse().forEach(o=>{ c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer'><div>합계: <span class='price'>${o.total.toLocaleString()}원</span></div><button class='ship-btn' onclick='completeShipment(${o.id})'>📦 출고완료</button></div></div>`; }); }" +
                 "function filterBranch(b, e) { document.querySelectorAll('.filter-chip').forEach(ch=>ch.classList.remove('active')); e.target.classList.add('active'); currentSelectedBranch=b; renderMonthlyData(); }" +
                 "function renderMonthlyData() { const m = document.getElementById('selectedMonth').value; const c = document.getElementById('monthlyListContainer'); const list = db.orders.filter(o => o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; c.innerHTML=''; if(list.length===0){c.innerHTML=`<div class='empty-msg'>[${currentSelectedBranch}] ${m}월 발주 내역이 없습니다.</div>`; document.getElementById('summaryGrandTotal').innerText='0원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; return;} list.forEach(o=>{ total+=o.total; c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer' style='border-top:none;padding-top:0;'><span style='font-size:12px;color:#94a3b8;'>정상 처리됨</span><span class='price'>${o.total.toLocaleString()}원</span></div></div>`; }); document.getElementById('summaryGrandTotal').innerText=total.toLocaleString()+'원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; }" +
-                "function sendKakaoReport() { const m = document.getElementById('selectedMonth').value; const list = db.orders.filter(o => o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; list.forEach(o=>total+=o.total); const text = `[양평칼국수 ${currentSelectedBranch}] ${m} 월간 발주 명세서\\n- 총 발주 건수: ${list.length}건\\n- 총 청구 금액: ${total.toLocaleString()}원\\n- 확인 완료`; navigator.clipboard.writeText(text).then(()=>alert('📋 월간 명세서가 복사되었습니다! 카톡에 붙여넣기 하세요.')); }" +
+                "function sendKakaoReport() { const m = document.getElementById('selectedMonth'].value; const list = db.orders.filter(o => o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; list.forEach(o=>total+=o.total); const text = `[양평칼국수 ${currentSelectedBranch}] ${m} 월간 발주 명세서\\n- 총 발주 건수: ${list.length}건\\n- 총 청구 금액: ${total.toLocaleString()}원\\n- 확인 완료`; navigator.clipboard.writeText(text).then(()=>alert('📋 월간 명세서가 복사되었습니다! 카톡에 붙여넣기 하세요.')); }" +
                 "initMonthSelector(); renderRealtimeOrders(); renderMonthlyData();" +
+                "setInterval(checkServer, 5000);" + // 앱 켜자마자 5초마다 자동 체크 가동
                 "</script></body></html>";
 
         webView.loadDataWithBaseURL("https://ypkal-1.onrender.com", html, "text/html", "UTF-8", null);
