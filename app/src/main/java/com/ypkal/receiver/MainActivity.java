@@ -75,25 +75,7 @@ public class MainActivity extends Activity {
                 "let db = JSON.parse(localStorage.getItem('yp_receiver_dashboard_db')) || { orders: [], shippedIds: [] };" +
                 "let audioCtx = null, currentSelectedBranch = '전체';" +
                 "function playBeep() { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.5, audioCtx.currentTime); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.6); if (navigator.vibrate) navigator.vibrate([400, 200, 400]); } catch(e){} }" +
-                "function checkServer() {" +
-                "  fetch('https://ypkal-1.onrender.com/api/check-order')" +
-                "    .then(r => r.json())" +
-                "    .then(d => {" +
-                "      if(d.order) {" +
-                "        const id = d.order.id || new Date(d.order.orderDate).getTime();" +
-                "        if(!db.orders.some(o => o.id === id)) {" +
-                "          db.orders.push({ id: id, branch: d.order.branch || '지점 미지정', orderDate: d.order.orderDate, details: d.order.details, total: Number(d.order.total)||0 });" +
-                "          localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db));" +
-                "          playBeep();" +
-                "          renderRealtimeOrders();" +
-                "          renderMonthlyData();" +
-                "        }" +
-                "      }" +
-                "    }).catch(e=>{});" +
-                "}" +
-                "function completeShipment(id) {" +
-                "  if(!db.shippedIds.includes(id)) {" +
-                "    db.shippedIds.push(id);" +
-                "    localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db));" +
-                "  }" +
-                "  renderRealtimeOrders
+                "function checkServer() { fetch('https://ypkal-1.onrender.com/api/check-order').then(r => r.json()).then(d => { if(d.order) { const id = d.order.id || new Date(d.order.orderDate).getTime(); if(!db.orders.some(o => o.id === id)) { db.orders.push({ id: id, branch: d.order.branch || '지점 미지정', orderDate: d.order.orderDate, details: d.order.details, total: Number(d.order.total)||0 }); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); playBeep(); renderRealtimeOrders(); renderMonthlyData(); } } }).catch(e=>{}); }" +
+                "function completeShipment(id) { if(!db.shippedIds.includes(id)) { db.shippedIds.push(id); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); } renderRealtimeOrders(); renderMonthlyData(); }" +
+                "function switchTab(name) { document.getElementById('tabBtnRealtime').classList.remove('active'); document.getElementById('tabBtnMonthly').classList.remove('active'); document.getElementById('tab-realtime').classList.remove('active'); document.getElementById('tab-monthly').classList.remove('active'); if(name === 'realtime') { document.getElementById('tabBtnRealtime').classList.add('active'); document.getElementById('tab-realtime').classList.add('active'); renderRealtimeOrders(); } else { document.getElementById('tabBtnMonthly').classList.add('active'); document.getElementById('tab-monthly').classList.add('active'); renderMonthlyData(); } }" +
+                "function
