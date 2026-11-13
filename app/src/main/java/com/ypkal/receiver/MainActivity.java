@@ -1,147 +1,84 @@
 package com.ypkal.receiver;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
-            }
-        }
-
-        FirebaseMessaging.getInstance().subscribeToTopic("orders");
-
         WebView webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebViewClient(new WebViewClient());
 
-        // 사장님 실시간 발주 관리 장부 HTML (서버 연동형)
-        String html = "<<!DOCTYPE html>" +
-                "<html lang='ko'>" +
-                "<head>" +
-                "<meta charset='UTF-8'>" +
-                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-                "<title>양평칼국수 통합 발주 장부</title>" +
+        // 수신용 대시보드 HTML 임베딩
+        String html = "<!DOCTYPE html><html lang='ko'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "<title>양평칼국수 본점 발주 수신 장부</title>" +
                 "<style>" +
-                ":root { --bg-color: #0f172a; --card-bg: #1e293b; --border-color: #334155; --text-main: #f8fafc; --text-sub: #94a3b8; --primary: #3b82f6; --success: #22c55e; --accent: #f59e0b; }" +
-                "* { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }" +
-                "body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; }" +
-                ".container { max-width: 600px; margin: 0 auto; }" +
-                ".tabs { display: flex; background: var(--card-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; border: 1px solid var(--border-color); }" +
-                ".tab-btn { flex: 1; background: transparent; border: none; color: var(--text-sub); padding: 10px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; }" +
-                ".tab-btn.active { background: var(--primary); color: white; }" +
-                ".card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }" +
-                "h2 { font-size: 18px; margin-bottom: 14px; }" +
-                ".filter-box { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; }" +
-                ".filter-chip { background: var(--border-color); color: var(--text-sub); border: none; padding: 6px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; }" +
-                ".filter-chip.active { background: var(--accent); color: #000; font-weight: bold; }" +
-                ".order-item { background: #0f172a; border: 1px solid var(--border-color); padding: 14px; border-radius: 10px; margin-bottom: 10px; }" +
-                ".order-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-sub); margin-bottom: 6px; }" +
-                ".order-body { font-size: 15px; font-weight: 500; margin-bottom: 8px; line-height: 1.4; }" +
-                ".order-footer { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); paddingTop: 8px; }" +
-                ".price { color: var(--success); font-weight: bold; font-size: 16px; }" +
-                ".ship-btn { background: var(--success); color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }" +
-                ".summary-box { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--primary); padding: 16px; border-radius: 12px; margin-top: 16px; text-align: center; }" +
-                ".summary-total { font-size: 20px; font-weight: bold; color: var(--primary); margin-top: 6px; }" +
-                ".kakao-btn { width: 100%; background: #fee500; color: #3c1e1e; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 14px; }" +
-                ".hidden { display: none; }" +
-                ".empty-msg { text-align: center; color: var(--text-sub); padding: 30px 0; font-size: 14px; }" +
-                "</style>" +
-                "</head>" +
-                "<body>" +
+                "body { font-family: sans-serif; background: #0f172a; color: #fff; padding: 15px; margin: 0; }" +
+                ".container { max-width: 600px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 16px; border: 1px solid #334155; }" +
+                "h2 { text-align: center; color: #fff; margin-bottom: 5px; }" +
+                ".subtitle { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 20px; }" +
+                ".status-bar { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }" +
+                ".connect-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }" +
+                ".tabs { display: flex; background: #0f172a; padding: 4px; border-radius: 12px; margin-bottom: 20px; }" +
+                ".tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 8px; color: #94a3b8; }" +
+                ".tab.active { background: #1e293b; color: #60a5fa; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }" +
+                ".tab-content { display: none; } .tab-content.active { display: block; }" +
+                ".filter-box { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 15px; }" +
+                ".filter-chip { background: #0f172a; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; }" +
+                ".filter-chip.active { background: #f59e0b; color: #000; font-weight: bold; border-color: #f59e0b; }" +
+                ".order-card { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 12px; margin-bottom: 12px; }" +
+                ".order-header { display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; font-weight: bold; }" +
+                ".order-body { font-size: 15px; font-weight: 500; margin-bottom: 10px; line-height: 1.5; color: #f8fafc; }" +
+                ".order-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #334155; paddingTop: 8px; }" +
+                ".price { color: #22c55e; font-weight: bold; font-size: 16px; }" +
+                ".ship-btn { background: #22c55e; color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }" +
+                ".grand-total-box { background: #0f172a; border: 2px solid #1e3a8a; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; }" +
+                ".grand-total-label { font-size: 14px; color: #60a5fa; font-weight: 600; margin-bottom: 5px; }" +
+                ".grand-total-value { font-size: 26px; color: #93c5fd; font-weight: bold; }" +
+                ".btn-kakao { width: 100%; background: #fee500; color: #3c1e1e; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; }" +
+                ".empty-msg { text-align: center; color: #94a3b8; padding: 30px 0; font-size: 14px; }" +
+                ".month-select { padding: 10px; font-size: 15px; font-weight: bold; border: 2px solid #334155; border-radius: 10px; background: #0f172a; color: #60a5fa; width: 100%; margin-bottom: 15px; }" +
+                "</style></head><body>" +
                 "<div class='container'>" +
-                "<h2 style='text-align:center; margin-bottom:16px;'>🍜 양평칼국수 통합 발주 장부</h2>" +
-                "<div class='tabs'>" +
-                "<button class='tab-btn active' onclick='switchTab(1)'>1동 당일 수신</button>" +
-                "<button class='tab-btn' onclick='switchTab(2)'>2동 지점별 월간</button>" +
-                "</div>" +
-                "<div id='tab1' class='card'>" +
-                "<h2>📥 오늘 실시간 발주 내역</h2>" +
-                "<div id='todayOrderList'><div class='empty-msg'>서버에서 발주 내역 불러오는 중...</div></div>" +
-                "</div>" +
-                "<div id='tab2' class='card hidden'>" +
-                "<h2>📅 지점별 월간 발주 명세서</h2>" +
+                "<h2>🔔 양평칼국수 본점 수신 대시보드</h2><div class='subtitle'>실시간 발주 수신 및 지점별 월간 장부 관리</div>" +
+                "<div class='status-bar'><div><span id='connectionStatus' style='color: #60a5fa; font-weight: bold;'>🔴 대기 중 (시작 버튼을 누르세요)</span></div><button id='startBtn' class='connect-btn' onclick='startListening()'>수신 시작</button></div>" +
+                "<div class='tabs'><div class='tab active' onclick='switchTab(\"realtime\")'>📥 당일 실시간 수신</div><div class='tab' onclick='switchTab(\"monthly\")'>📅 지점별 월간 장부</div></div>" +
+                "<div id='tab-realtime' class='tab-content active'><div id='todayOrderList'><div class='empty-msg'>접수된 실시간 발주가 없습니다.</div></div></div>" +
+                "<div id='tab-monthly' class='tab-content'><select id='selectedMonth' class='month-select' onchange='renderMonthlyData()'></select>" +
                 "<div class='filter-box'>" +
-                "<button class='filter-chip active' onclick='filterBranch(\"전체\")'>전체</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\"조치원\")'>조치원점</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\"부강\")'>부강점</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\"청주\")'>청주점</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\"천안\")'>천안점</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\"계룡\")'>계룡점</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\"하남\")'>하남점</button>" +
+                "<button class='filter-chip active' onclick='filterBranch(\"전체\", event)'>전체</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\"조치원점\", event)'>조치원점</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\"부강점\", event)'>부강점</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\"청주점\", event)'>청주점</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\"천안점\", event)'>천안점</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\"계룡점\", event)'>계룡점</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\"하남점\", event)'>하남점</button>" +
                 "</div>" +
-                "<div id='monthlyOrderList'>" +
-                "<div class='order-item' data-branch='조치원'><div class='order-header'><span>[조치원점]</span><span>11월 10일</span></div><div class='order-body'>반죽 20박스, 파김치 5kg</div><div class='order-footer'><span>금액</span><span class='price'>250,000원</span></div></div>" +
-                "</div>" +
-                "<div class='summary-box'>" +
-                "<div style='font-size: 14px; color: var(--text-sub);' id='selectedBranchTitle'>[전체 지점] 11월 총 발주 금액</div>" +
-                "<div class='summary-total' id='monthlyTotal'>250,000원</div>" +
-                "</div>" +
-                "<button class='kakao-btn' onclick='sendKakaoReport()'>💬 카카오톡으로 월간 명세서 보내기</button>" +
-                "</div>" +
-                "</div>" +
+                "<div class='grand-total-box'><div class='grand-total-label' id='summaryTitle'>[전체 지점] 월간 총 발주 금액</div><div class='grand-total-value' id='summaryGrandTotal'>0원</div></div>" +
+                "<div id='monthlyListContainer'></div>" +
+                "<button class='btn-kakao' onclick='sendKakaoReport()'>💬 카카오톡으로 월간 명세서 공유하기</button>" +
+                "</div></div>" +
                 "<script>" +
-                "function switchTab(n) {" +
-                "  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', i===n-1));" +
-                "  document.getElementById('tab1').classList.toggle('hidden', n!==1);" +
-                "  document.getElementById('tab2').classList.toggle('hidden', n!==2);" +
-                "}" +
-                "function loadOrders() {" +
-                "  fetch('https://ypkal-1.onrender.com/api/check-order')" +
-                "    .then(r => r.json())" +
-                "    .then(d => {" +
-                "       const list = document.getElementById('todayOrderList');" +
-                "       if(d.order) {" +
-                "          list.innerHTML = `<div class='order-item' id='order-current'>" +
-                "             <div class='order-header'><span>[` + (d.order.branch || '지점 미지정') + `]</span><span>` + d.order.orderDate + `</span></div>" +
-                "             <div class='order-body'>` + d.order.details + `</div>" +
-                "             <div class='order-footer'>" +
-                "                <div>합계: <span class='price'>` + Number(d.order.total).toLocaleString() + `원</span></div>" +
-                "                <button class='ship-btn' onclick='completeShipment()'>📦 출고완료</button>" +
-                "             </div>" +
-                "          </div>`;" +
-                "       } else {" +
-                "          list.innerHTML = '<div class='empty-msg'>접수된 실시간 발주가 없습니다.</div>';" +
-                "       }" +
-                "    }).catch(e => { document.getElementById('todayOrderList').innerHTML = '<div class='empty-msg'>서버 연결 대기 중...</div>'; });" +
-                "}" +
-                "function completeShipment() {" +
-                "  if(confirm('해당 발주 건을 출고 완료 처리하시겠습니까?')) {" +
-                "     document.getElementById('todayOrderList').innerHTML = '<div class=\"empty-msg\">🎉 오늘 들어온 모든 발주가 출고 완료되었습니다!</div>';" +
-                "  }" +
-                "}" +
-                "function filterBranch(bName) {" +
-                "  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.innerText.includes(bName) || (bName==='전체' && c.innerText==='전체')));" +
-                "  const items = document.querySelectorAll('#monthlyOrderList .order-item');" +
-                "  let total = 0;" +
-                "  items.forEach(item => {" +
-                "     const itemB = item.getAttribute('data-branch');" +
-                "     if(bName === '전체' || itemB === bName) { item.style.display = 'block'; total += 250000; }" +
-                "     else { item.style.display = 'none'; }" +
-                "  });" +
-                "  document.getElementById('selectedBranchTitle').innerText = '[' + bName + ' 지점] 11월 총 발주 금액';" +
-                "  document.getElementById('monthlyTotal').innerText = total.toLocaleString() + '원';" +
-                "}" +
-                "function sendKakaoReport() {" +
-                "  const text = '[양평칼국수] 11월 지점별 발주 명세서\\n- 총 합계 금액: 250,000원\\n- 내역 확인 완료';" +
-                "  navigator.clipboard.writeText(text).then(() => alert('📋 월간 명세서가 복사되었습니다! 카톡에 붙여넣기 하세요.'));" +
-                "}" +
-                "loadOrders(); setInterval(loadOrders, 5000);" +
-                "</script>" +
-                "</body>" +
-                "</html>";
+                "let db = JSON.parse(localStorage.getItem('yp_receiver_dashboard_db')) || { orders: [], shippedIds: [] };" +
+                "let isListening = false, audioCtx = null, currentSelectedBranch = '전체';" +
+                "function playBeep() { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.5, audioCtx.currentTime); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.6); if (navigator.vibrate) navigator.vibrate([400, 200, 400]); } catch(e){} }" +
+                "function startListening() { if (isListening) return; isListening = true; playBeep(); document.getElementById('startBtn').style.background = '#059669'; document.getElementById('startBtn').innerText = '가동 중'; document.getElementById('connectionStatus').innerText = '🟢 실시간 수신 연결됨'; checkServer(); setInterval(checkServer, 5000); }" +
+                "function checkServer() { fetch('https://ypkal-1.onrender.com/api/check-order').then(r => r.json()).then(d => { if(d.order) { const id = d.order.id || new Date(d.order.orderDate).getTime(); if(!db.orders.some(o => o.id === id)) { db.orders.push({ id: id, branch: d.order.branch || '지점 미지정', orderDate: d.order.orderDate, details: d.order.details, total: Number(d.order.total)||0 }); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); playBeep(); renderRealtimeOrders(); renderMonthlyData(); } } }).catch(e=>{}); }" +
+                "function completeShipment(id) { if(confirm('출고 완료 처리하시겠습니까?')) { if(!db.shippedIds.includes(id)) db.shippedIds.push(id); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); renderRealtimeOrders(); renderMonthlyData(); } }" +
+                "function switchTab(name) { document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); if(name==='realtime'){document.querySelectorAll('.tab')[0].classList.add('active');document.getElementById('tab-realtime').classList.add('active');renderRealtimeOrders();}else{document.querySelectorAll('.tab')[1].classList.add('active');document.getElementById('tab-monthly').classList.add('active');renderMonthlyData();}}" +
+                "function initMonthSelector() { const s = document.getElementById('selectedMonth'); s.innerHTML=''; const now = new Date(); for(let i=-6; i<=6; i++){ const d = new Date(now.getFullYear(), now.getMonth()+i, 1); const v = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; s.innerHTML += `<option value='${v}'>${d.getFullYear()}년 ${d.getMonth()+1}월</option>`; } s.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; }" +
+                "function renderRealtimeOrders() { const c = document.getElementById('todayOrderList'); const list = db.orders.filter(o => !db.shippedIds.includes(o.id)); if(list.length===0){c.innerHTML='<div class=\"empty-msg\">🎉 대기 중인 실시간 발주가 없습니다.</div>';return;} c.innerHTML=''; list.slice().reverse().forEach(o=>{ c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer'><div>합계: <span class='price'>${o.total.toLocaleString()}원</span></div><button class='ship-btn' onclick='completeShipment(${o.id})'>📦 출고완료</button></div></div>`; }); }" +
+                "function filterBranch(b, e) { document.querySelectorAll('.filter-chip').forEach(ch=>ch.classList.remove('active')); e.target.classList.add('active'); currentSelectedBranch=b; renderMonthlyData(); }" +
+                "function renderMonthlyData() { const m = document.getElementById('selectedMonth').value; const c = document.getElementById('monthlyListContainer'); const list = db.orders.filter(o => o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; c.innerHTML=''; if(list.length===0){c.innerHTML=`<div class='empty-msg'>[${currentSelectedBranch}] ${m}월 발주 내역이 없습니다.</div>`; document.getElementById('summaryGrandTotal').innerText='0원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; return;} list.forEach(o=>{ total+=o.total; c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer' style='border-top:none;padding-top:0;'><span style='font-size:12px;color:#94a3b8;'>정상 처리됨</span><span class='price'>${o.total.toLocaleString()}원</span></div></div>`; }); document.getElementById('summaryGrandTotal').innerText=total.toLocaleString()+'원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; }" +
+                "function sendKakaoReport() { const m = document.getElementById('selectedMonth').value; const list = db.orders.filter(o => o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; list.forEach(o=>total+=o.total); const text = `[양평칼국수 ${currentSelectedBranch}] ${m} 월간 발주 명세서\\n- 총 발주 건수: ${list.length}건\\n- 총 청구 금액: ${total.toLocaleString()}원\\n- 확인 완료`; navigator.clipboard.writeText(text).then(()=>alert('📋 월간 명세서가 복사되었습니다! 카톡에 붙여넣기 하세요.')); }" +
+                "initMonthSelector(); renderRealtimeOrders(); renderMonthlyData();" +
+                "</script></body></html>";
 
         webView.loadDataWithBaseURL("https://ypkal-1.onrender.com", html, "text/html", "UTF-8", null);
         setContentView(webView);
