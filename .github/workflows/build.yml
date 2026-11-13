@@ -7,9 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: .github/workflows
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -25,9 +22,15 @@ jobs:
         run: |
           echo "android.useAndroidX=true" > gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m" >> gradle.properties
+          # 잘못 들어간 위치에서 파일들을 정상 위치로 이동
+          if [ -d ".github/workflows/app" ]; then
+            cp -r .github/workflows/app ./app
+            cp .github/workflows/build.gradle ./build.gradle 2>/dev/null || true
+            cp .github/workflows/settings.gradle ./settings.gradle 2>/dev/null || true
+          fi
           gradle assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ypkal-receiver-apk
-          path: .github/workflows/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
