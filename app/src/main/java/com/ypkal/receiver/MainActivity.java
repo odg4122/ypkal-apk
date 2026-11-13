@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
                 "<button class='filter-chip' onclick='filterBranch(\"부강점\", event)'>부강점</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"청주점\", event)'>청주점</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"천안점\", event)'>천안점</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\>계룡점\", event)'>계룡점</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\"계룡점\", event)'>계룡점</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"하남점\", event)'>하남점</button>" +
                 "</div>" +
                 "<div class='grand-total-box'><div class='grand-total-label' id='summaryTitle'>[전체 지점] 월간 총 발주 금액</div><div class='grand-total-value' id='summaryGrandTotal'>0원</div></div>" +
