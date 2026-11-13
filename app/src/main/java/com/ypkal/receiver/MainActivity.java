@@ -2,6 +2,7 @@ package com.ypkal.receiver;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -11,17 +12,20 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         WebView webView = new WebView(this);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setDatabaseEnabled(true);
         webView.setWebViewClient(new WebViewClient());
 
-        // 항시 자동 수신 및 출고완료 즉시 반영형 대시보드 HTML
+        // 안정성을 높인 본점 수신 및 월간 장부 대시보드 HTML
         String html = "<!DOCTYPE html><html lang='ko'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-                "<title>양평칼국수 본점 발주 수신 장부</title>" +
+                "<title>양평칼국수 본점 수신 대시보드</title>" +
                 "<style>" +
-                "body { font-family: sans-serif; background: #0f172a; color: #fff; padding: 15px; margin: 0; }" +
-                ".container { max-width: 600px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 16px; border: 1px solid #334155; }" +
-                "h2 { text-align: center; color: #fff; margin-bottom: 5px; }" +
+                "* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }" +
+                "body { background: #0f172a; color: #f8fafc; padding: 15px; }" +
+                ".container { max-width: 600px; margin: 0 auto; background: #1e293b; padding: 20px; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }" +
+                "h2 { text-align: center; color: #fff; margin-bottom: 5px; font-size: 20px; }" +
                 ".subtitle { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 20px; }" +
                 ".status-bar { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }" +
                 ".tabs { display: flex; background: #0f172a; padding: 4px; border-radius: 12px; margin-bottom: 20px; }" +
@@ -36,27 +40,34 @@ public class MainActivity extends Activity {
                 ".order-body { font-size: 15px; font-weight: 500; margin-bottom: 10px; line-height: 1.5; color: #f8fafc; }" +
                 ".order-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #334155; padding-top: 8px; }" +
                 ".price { color: #22c55e; font-weight: bold; font-size: 16px; }" +
-                ".ship-btn { background: #22c55e; color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; }" +
+                ".ship-btn { background: #22c55e; color: #000; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }" +
+                ".ship-btn:active { opacity: 0.7; }" +
                 ".grand-total-box { background: #0f172a; border: 2px solid #1e3a8a; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 15px; }" +
                 ".grand-total-label { font-size: 14px; color: #60a5fa; font-weight: 600; margin-bottom: 5px; }" +
                 ".grand-total-value { font-size: 26px; color: #93c5fd; font-weight: bold; }" +
                 ".btn-kakao { width: 100%; background: #fee500; color: #3c1e1e; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; }" +
+                ".btn-kakao:active { background: #e6cf00; }" +
                 ".empty-msg { text-align: center; color: #94a3b8; padding: 30px 0; font-size: 14px; }" +
                 ".month-select { padding: 10px; font-size: 15px; font-weight: bold; border: 2px solid #334155; border-radius: 10px; background: #0f172a; color: #60a5fa; width: 100%; margin-bottom: 15px; }" +
                 "</style></head><body>" +
                 "<div class='container'>" +
-                "<h2>🔔 양평칼국수 본점 발주 수신 대시보드</h2><div class='subtitle'>실시간 항시 수신 및 지점별 월간 장부 관리</div>" +
-                "<div class='status-bar'><div><span id='connectionStatus' style='color: #22c55e; font-weight: bold;'>🟢 항시 자동 수신 가동 중</span></div><span style='font-size:12px; color:#94a3b8;'>실시간 동기화 완료</span></div>" +
-                "<div class='tabs'><div class='tab active' onclick='switchTab(\"realtime\")'>📥 당일 실시간 수신</div><div class='tab' onclick='switchTab(\"monthly\")'>📅 지점별 월간 장부</div></div>" +
+                "<h2>🔔 양평칼국수 본점 발주 수신 대시보드</h2>" +
+                "<div class='subtitle'>실시간 항시 수신 및 지점별 월간 장부 관리</div>" +
+                "<div class='status-bar'><div><span style='color: #22c55e; font-weight: bold;'>🟢 항시 자동 수신 가동 중</span></div><span style='font-size:12px; color:#94a3b8;'>실시간 동기화</span></div>" +
+                "<div class='tabs'>" +
+                "<div class='tab active' onclick='switchTab(\"realtime\")'>📥 당일 실시간 수신</div>" +
+                "<div class='tab' onclick='switchTab(\"monthly\")'>📅 지점별 월간 장부</div>" +
+                "</div>" +
                 "<div id='tab-realtime' class='tab-content active'><div id='todayOrderList'><div class='empty-msg'>접수된 실시간 발주가 없습니다.</div></div></div>" +
-                "<div id='tab-monthly' class='tab-content'><select id='selectedMonth' class='month-select' onchange='renderMonthlyData()'></select>" +
+                "<div id='tab-monthly' class='tab-content'>" +
+                "<select id='selectedMonth' class='month-select' onchange='renderMonthlyData()'></select>" +
                 "<div class='filter-box'>" +
                 "<button class='filter-chip active' onclick='filterBranch(\"전체\", event)'>전체</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"조치원점\", event)'>조치원점</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"부강점\", event)'>부강점</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"청주점\", event)'>청주점</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"천안점\", event)'>천안점</button>" +
-                "<button class='filter-chip' onclick='filterBranch(\"계룡점\", event)'>계룡점</button>" +
+                "<button class='filter-chip' onclick='filterBranch(\>계룡점\", event)'>계룡점</button>" +
                 "<button class='filter-chip' onclick='filterBranch(\"하남점\", event)'>하남점</button>" +
                 "</div>" +
                 "<div class='grand-total-box'><div class='grand-total-label' id='summaryTitle'>[전체 지점] 월간 총 발주 금액</div><div class='grand-total-value' id='summaryGrandTotal'>0원</div></div>" +
@@ -68,15 +79,15 @@ public class MainActivity extends Activity {
                 "let audioCtx = null, currentSelectedBranch = '전체';" +
                 "function playBeep() { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); var osc = audioCtx.createOscillator(); var gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime); gain.gain.setValueAtTime(0.5, audioCtx.currentTime); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.6); if (navigator.vibrate) navigator.vibrate([400, 200, 400]); } catch(e){} }" +
                 "function checkServer() { fetch('https://ypkal-1.onrender.com/api/check-order').then(r => r.json()).then(d => { if(d.order) { const id = d.order.id || new Date(d.order.orderDate).getTime(); if(!db.orders.some(o => o.id === id)) { db.orders.push({ id: id, branch: d.order.branch || '지점 미지정', orderDate: d.order.orderDate, details: d.order.details, total: Number(d.order.total)||0 }); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); playBeep(); renderRealtimeOrders(); renderMonthlyData(); } } }).catch(e=>{}); }" +
-                "function completeShipment(id) { if(confirm('출고 완료 처리하시겠습니까?')) { if(!db.shippedIds.includes(id)) db.shippedIds.push(id); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); renderRealtimeOrders(); renderMonthlyData(); } }" +
+                "function completeShipment(id) { if(confirm('해당 발주 건을 출고 완료 처리하시겠습니까?')) { if(!db.shippedIds.includes(id)) db.shippedIds.push(id); localStorage.setItem('yp_receiver_dashboard_db', JSON.stringify(db)); renderRealtimeOrders(); renderMonthlyData(); } }" +
                 "function switchTab(name) { document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); if(name==='realtime'){document.querySelectorAll('.tab')[0].classList.add('active');document.getElementById('tab-realtime').classList.add('active');renderRealtimeOrders();}else{document.querySelectorAll('.tab')[1].classList.add('active');document.getElementById('tab-monthly').classList.add('active');renderMonthlyData();}}" +
-                "function initMonthSelector() { const s = document.getElementById('selectedMonth'); s.innerHTML=''; const now = new Date(); for(let i=-6; i<=6; i++){ const d = new Date(now.getFullYear(), now.getMonth()+i, 1); const v = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; s.innerHTML += `<option value='${v}'>${d.getFullYear()}년 ${d.getMonth()+1}월</option>`; } s.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; }" +
-                "function renderRealtimeOrders() { const c = document.getElementById('todayOrderList'); const list = db.orders.filter(o => !db.shippedIds.includes(o.id)); if(list.length===0){c.innerHTML='<div class=\"empty-msg\">🎉 대기 중인 실시간 발주가 없습니다.</div>';return;} c.innerHTML=''; list.slice().reverse().forEach(o=>{ c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer'><div>합계: <span class='price'>${o.total.toLocaleString()}원</span></div><button class='ship-btn' onclick='completeShipment(${o.id})'>📦 출고완료</button></div></div>`; }); }" +
+                "function initMonthSelector() { const s = document.getElementById('selectedMonth'); if(!s) return; s.innerHTML=''; const now = new Date(); for(let i=-6; i<=6; i++){ const d = new Date(now.getFullYear(), now.getMonth()+i, 1); const v = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; s.innerHTML += `<option value='${v}'>${d.getFullYear()}년 ${d.getMonth()+1}월</option>`; } s.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`; }" +
+                "function renderRealtimeOrders() { const c = document.getElementById('todayOrderList'); if(!c) return; const list = db.orders.filter(o => !db.shippedIds.includes(o.id)); if(list.length===0){c.innerHTML='<div class=\"empty-msg\">🎉 대기 중인 실시간 발주가 없습니다.</div>';return;} c.innerHTML=''; list.slice().reverse().forEach(o=>{ c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer'><div>합계: <span class='price'>${o.total.toLocaleString()}원</span></div><button class='ship-btn' onclick='completeShipment(${o.id})'>📦 출고완료</button></div></div>`; }); }" +
                 "function filterBranch(b, e) { document.querySelectorAll('.filter-chip').forEach(ch=>ch.classList.remove('active')); e.target.classList.add('active'); currentSelectedBranch=b; renderMonthlyData(); }" +
-                "function renderMonthlyData() { const m = document.getElementById('selectedMonth').value; const c = document.getElementById('monthlyListContainer'); const list = db.orders.filter(o => o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; c.innerHTML=''; if(list.length===0){c.innerHTML=`<div class='empty-msg'>[${currentSelectedBranch}] ${m}월 발주 내역이 없습니다.</div>`; document.getElementById('summaryGrandTotal').innerText='0원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; return;} list.forEach(o=>{ total+=o.total; c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer' style='border-top:none;padding-top:0;'><span style='font-size:12px;color:#94a3b8;'>정상 처리됨</span><span class='price'>${o.total.toLocaleString()}원</span></div></div>`; }); document.getElementById('summaryGrandTotal').innerText=total.toLocaleString()+'원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; }" +
-                "function sendKakaoReport() { const m = document.getElementById('selectedMonth'].value; const list = db.orders.filter(o => o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; list.forEach(o=>total+=o.total); const text = `[양평칼국수 ${currentSelectedBranch}] ${m} 월간 발주 명세서\\n- 총 발주 건수: ${list.length}건\\n- 총 청구 금액: ${total.toLocaleString()}원\\n- 확인 완료`; navigator.clipboard.writeText(text).then(()=>alert('📋 월간 명세서가 복사되었습니다! 카톡에 붙여넣기 하세요.')); }" +
+                "function renderMonthlyData() { const mSel = document.getElementById('selectedMonth'); if(!mSel) return; const m = mSel.value; const c = document.getElementById('monthlyListContainer'); if(!c) return; const list = db.orders.filter(o => o.orderDate && o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; c.innerHTML=''; if(list.length===0){c.innerHTML=`<div class='empty-msg'>[${currentSelectedBranch}] ${m}월 발주 내역이 없습니다.</div>`; document.getElementById('summaryGrandTotal').innerText='0원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; return;} list.forEach(o=>{ total+=o.total; c.innerHTML += `<div class='order-card'><div class='order-header'><span>📍 [${o.branch}]</span><span>${o.orderDate}</span></div><div class='order-body'>${o.details}</div><div class='order-footer' style='border-top:none;padding-top:0;'><span style='font-size:12px;color:#94a3b8;'>정상 처리됨</span><span class='price'>${o.total.toLocaleString()}원</span></div></div>`; }); document.getElementById('summaryGrandTotal').innerText=total.toLocaleString()+'원'; document.getElementById('summaryTitle').innerText=`[${currentSelectedBranch}] ${m}월 총 발주 금액`; }" +
+                "function sendKakaoReport() { const m = document.getElementById('selectedMonth').value; const list = db.orders.filter(o => o.orderDate && o.orderDate.includes(m) && (currentSelectedBranch==='전체' || o.branch===currentSelectedBranch)); let total=0; list.forEach(o=>total+=o.total); const text = `[양평칼국수 ${currentSelectedBranch}] ${m} 월간 발주 명세서\\n- 총 발주 건수: ${list.length}건\\n- 총 청구 금액: ${total.toLocaleString()}원\\n- 확인 완료`; navigator.clipboard.writeText(text).then(()=>alert('📋 월간 명세서가 복사되었습니다! 카톡에 붙여넣기 하세요.')); }" +
                 "initMonthSelector(); renderRealtimeOrders(); renderMonthlyData();" +
-                "setInterval(checkServer, 5000);" + // 앱 켜자마자 5초마다 자동 체크 가동
+                "setInterval(checkServer, 5000);" +
                 "</script></body></html>";
 
         webView.loadDataWithBaseURL("https://ypkal-1.onrender.com", html, "text/html", "UTF-8", null);
