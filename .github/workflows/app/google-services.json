@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "265228206140",
+    "project_id": "ypkal-45746",
+    "storage_bucket": "ypkal-45746.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265228206140:android:d8774775b5de5060184339",
+        "android_client_info": {
+          "package_name": "com.ypkal.receiver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeg6S8cy6WG_aTy0xdEfnofDXJzcxoT8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
